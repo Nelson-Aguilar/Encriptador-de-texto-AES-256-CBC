@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Agrego una etiqueta meta para controlar el zoom de la pantalla -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Agrego un título más descriptivo al documento HTML -->
+    <title>Encriptador de textos basado en llaves</title>
+    <script src="app-LLAVES.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="contenedorPrincipal">
+    <div class="contenedorSecundario">
+        <h1>Encriptador de textos basado en llaves</h1>
+        <p>Introduce el texto que quieres encriptar o desencriptar y elige la opción correspondiente:</p>
+        <textarea id="texto" placeholder="Ingrese el texto aquí en minúsculas sin tilde"></textarea>
+        <!-- Agrego un contenedor para centrar los botones -->
+        <div class="botones">
+            <button onclick="procesar('encriptar')">Encriptar</button>
+            <button onclick="procesar('desencriptar')">Desencriptar</button>
+            <button onclick="onclickCopiar()">Copiar</button>
+            <button onclick="onclickLimpiar()">Limpiar texto y portapapeles</button>
+        </div>
+        <p>El resultado es:</p>
+        <textarea id="resultado" readonly placeholder="Ningun texto ha sido procesado"></textarea>
+        <div class="botones">
+            <a href="encriptador-AES-256-CBC.html"><button>Ir a la página del Encriptador AES-256 con CBC</button></a>
+        </div>   
+        <div id="contenedorPiePagina">
+            <p id="piePagina"><a href="mensajeSecretoLLaves.txt">Ir a mensaje secreto. Prueba desencriptando este mensaje secreto</a></p>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
