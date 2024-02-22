@@ -1,3 +1,37 @@
+//Funciones encriptar/desencriptar vistas en la mentoría de este challenge
+//////////////////////////////////////////////////////////////////////////
+var llaves = [
+    ["e", "enter"], //indice 0
+    ["i", "imes"],  //indice 1
+    ["a", "ai"],    //indice 2
+    ["o", "ober"],  //indice 3
+    ["u", "ufat"]   //indice 4
+];
+
+function encriptar(mensaje){
+    for(let i=0;i<llaves.length;i++){
+        if(mensaje.includes(llaves[i][0])){
+            mensaje=mensaje.replaceAll(
+                llaves[i][0],
+                llaves[i][1]
+            )
+        }
+    }
+    return mensaje;
+};
+
+function desencriptar(mensaje){
+    for(let i=0;i<llaves.length;i++){
+        if(mensaje.includes(llaves[i][1])){
+            mensaje=mensaje.replaceAll(
+                llaves[i][1],
+                llaves[i][0]
+            )
+        }
+    }
+    return mensaje;
+};
+
 
 /*/INICIO FUNCIONES ENCRYP/DECRYP PRIMERA OPCION
 // Función que encripta un texto usando las llaves de encriptación
@@ -26,7 +60,7 @@ return texto;
 //FIN FUNCIONES ENCRYP/DECRYP PRIMERA OPCION
 
 *//////////////////////////////////////////////////////
-//INICIO FUNCIONES ENCRYP/DECRYP SEGUNDA OPCION
+/*/INICIO FUNCIONES ENCRYP/DECRYP SEGUNDA OPCION
 // Objeto que guarda las llaves de encriptación
 var llaves = {
 "e": "enter",
@@ -62,7 +96,7 @@ for (var llave in llaves) {
 });
 return desencriptado;
 }
-//FIN FUNCIONES ENCRYP/DECRYP SEGUNDA OPCION
+//FIN FUNCIONES ENCRYP/DECRYP SEGUNDA OPCION*/
 
 ////////////////////////////////////////////////////////////
 //INICIO FUNCIONES ENCRYP/DECRYP TERCERA OPCION
