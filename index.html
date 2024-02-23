@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Agrego una etiqueta meta para controlar el zoom de la pantalla -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Agrego un título más descriptivo al documento HTML -->
+    <title>Encriptador de textos basado en AES-256 con CBC</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="crypto-js.js"></script> 
+</head>
+<body>
+<div class="contenedorPrincipal">
+    <div class="contenedorSecundario">
+        <h1>Encriptador AES-256 con CBC</h1>
+        <p>Introduce el texto que quieres encriptar o desencriptar y elige la opción correspondiente:</p>
+        <textarea id="texto" placeholder="Ingrese el texto aquí. El texto encriptado será portador de la contraseña asignada, por lo que puede usar una contraseña diferente en cada mensaje."></textarea>
+        <p>Introduce la contraseña para encriptar o desencriptar el texto:</p>
+        <!-- Creo un contenedor con el botón para habilitar la contraseña-->
+        <div id="claveSecreta">
+            <button id="botonContraseña" onclick="cambiarContraseña()">Deshabilitar contraseña</button>
+            <input type="password" id="contraseña" placeholder="Contraseña">
+        </div>  
+        <div class="botones">
+            <button id="encriptar">Encriptar</button>
+            <button id="desencriptar">Desencriptar</button>
+            <button id="copiar" onclick="onclickCopiar()">Copiar</button>
+            <button id="limpiar" onclick="onclickLimpiar()">Limpiar texto y portapapeles</button>
+        </div>
+        <p>El resultado es:</p>
+        <textarea id="resultado" readonly placeholder="Ningún texto ha sido procesado."></textarea>
+        <div class="botones">
+            <a href="encriptadorLLAVES.html"><button>Ir a la página del Encriptador basado en llaves</button></a>
+        </div>
+        <div id="contenedorPiePagina">
+            <p id="piePagina"><a href="mensajeSecretoAES256CBC.txt">Ir a mensaje secreto. Prueba desencriptando este mensaje secreto. Contraseña: aes256cbc</a></p>
+        </div>
+
+    </div>  
+    
+</div>
+    <script>
+        // Seleccionamos los elementos del DOM
+        var texto = document.getElementById("texto");
+        var resultado = document.getElementById("resultado");
+        var contraseña = document.getElementById("contraseña");
+        var botonEncriptar = document.getElementById("encriptar");
+        var botonDesencriptar = document.getElementById("desencriptar");
+        var botonCopiar = document.getElementById("copiar");
+        var botonLimpiar = document.getElementById("limpiar");
+        var botonContraseña = document.getElementById("botonContraseña");
+        // Añadimos los eventos a los botones
+        botonEncriptar.addEventListener("click", encriptar);
+        botonDesencriptar.addEventListener("click", desencriptar);
+        //Funcion del boton Copiar
+        function onclickCopiar(){
+            copiar(document.getElementById('resultado'));
+            limpiar(document.getElementById('resultado'));
+            limpiar(document.getElementById('texto'));
+            limpiar(document.getElementById('contraseña'));
+
+        }
+        //Funcion del boton Limpiar
+        function onclickLimpiar(){
+            limpiar(document.getElementById('texto')); 
+            limpiar(document.getElementById('resultado'));
+            limpiarPortapapeles();
+            limpiar(document.getElementById('contraseña'));
+
+        }
+        /////////////////////////////////////////////////////////////////
+
+        // Función para cambiar el estado del input de contraseña y el texto del botón
+        function cambiarContraseña() {
+        // Comprobamos si el input de contraseña está habilitado o no
+        if (contraseña.disabled == false) {
+            // Si está habilitado, lo deshabilitamos y cambiamos el texto del botón
+            contraseña.disabled = true;
+            botonContraseña.innerHTML = "Habilitar contraseña";
+        } else {
+            // Si está deshabilitado, lo habilitamos y cambiamos el texto del botón
+            contraseña.disabled = false;
+            botonContraseña.innerHTML = "Deshabilitar contraseña";
+        }
+        // Cambiamos el color del botón según el estado del input de contraseña
+        
+        botonContraseña.style.backgroundColor = contraseña.disabled ? "red" : "green";
+        //Limpiamos la contraseña, si se clickea el boton deshabilitar contraseña
+        limpiar(document.getElementById('contraseña'));
+        }
+        ////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
+
+        // Definimos el tamaño de la clave y de la sal en bytes ("sal", es salida)
+        var tamañoClave = 32; // 256 bits
+        var tamañoSal = 16; // 128 bits
+        
+        // Función para encriptar el texto
+        function encriptar() {
+        if(texto.value==""){alert("El texto está vacío, por favor ingrese el texto a encriptar")}else{
+            if ((contraseña.disabled == false) && (contraseña.value=="")){
+            alert("Por favor ingrese una contraseña para encriptar el texto")}else{
+        // Obtenemos el texto del input
+        var textoPlano = texto.value;
+        // Obtenemos la contraseña del input
+        var password = contraseña.value;
+       
+        // Generamos una sal aleatoria ("sal", es salida)
+        var sal = CryptoJS.lib.WordArray.random(tamañoSal);
+        // Generamos una clave a partir de la contraseña y la sal usando PBKDF2
+        var clave = CryptoJS.PBKDF2(password, sal, {keySize: tamañoClave/4});
+        // Definimos un vector de inicialización (IV) para el modo CBC
+        var iv = CryptoJS.lib.WordArray.random(tamañoSal);
+        // Encriptamos el texto usando la clave, el IV y el algoritmo AES-256-CBC
+        var textoCifrado = CryptoJS.AES.encrypt(textoPlano, clave, {iv: iv});
+        // Concatenamos la sal y el IV al texto cifrado
+        var resultadoCifrado = sal.concat(iv).concat(textoCifrado.ciphertext);
+        // Convertimos el resultado a una cadena en base64
+        var resultadoBase64 = CryptoJS.enc.Base64.stringify(resultadoCifrado);
+        // Mostramos el resultado en el otro input
+        resultado.value = resultadoBase64;
+        if(resultado.value != ""){
+            limpiar(document.getElementById("texto"));
+            limpiar(document.getElementById("contraseña"));
+        }
+        }}}
+
+        // Función para desencriptar el texto
+        function desencriptar() {
+        if(texto.value==""){alert("El texto está vacío, por favor ingrese el texto a desencriptar")}else{
+        // Obtenemos el texto del input
+        var textoCifrado = texto.value;
+        ///////////////////////////////////////////////////////////////
+        // Probamos si el texto es portador o no de una contraseña
+        //Primero probamos si el texto puede desencriptarse sin ingresar una contraseña 
+        ///////////////////////////////////////////////////////////////////
+        var password = "";
+        // Convertimos el texto cifrado de base64 a una cadena de bytes
+        var textoBytes = CryptoJS.enc.Base64.parse(textoCifrado);
+        // Extraemos la sal del texto cifrado (los primeros 16 bytes)
+        var sal = CryptoJS.lib.WordArray.create(textoBytes.words.slice(0, tamañoSal/4));
+        // Extraemos el IV del texto cifrado (los siguientes 16 bytes)
+        var iv = CryptoJS.lib.WordArray.create(textoBytes.words.slice(tamañoSal/4, tamañoSal/2));
+        // Extraemos el texto cifrado propiamente dicho (el resto de bytes)
+        var textoCifradoBytes = CryptoJS.lib.WordArray.create(textoBytes.words.slice(tamañoSal/2));
+        // Generamos una clave a partir de la contraseña y la sal usando PBKDF2
+        var clave = CryptoJS.PBKDF2(password, sal, {keySize: tamañoClave/4});
+        // Desencriptamos el texto usando la clave, el IV y el algoritmo AES-256-CBC
+        var textoPlano = CryptoJS.AES.decrypt({ciphertext: textoCifradoBytes}, clave, {iv: iv});
+        // Convertimos el texto plano a una cadena UTF-8
+        var resultadoPlano = textoPlano.toString(CryptoJS.enc.Utf8);
+        // Mostramos el resultado en el otro input
+        resultado.value = resultadoPlano;
+        
+        if(textoCifradoBytes==""){alert("El texto no está encriptado"); return;}
+       
+        if((contraseña.value=="") && (resultado.value!="")){alert("Texto desencriptado con éxito. No posee contraseña.")}
+        
+        if((contraseña.value!="") && (resultado.value!="")){alert("Texto desencriptado con éxito. No requiere el ingreso de una contraseña")}
+        
+        if(resultado.value!=""){
+            limpiar(document.getElementById("texto"));
+            limpiar(document.getElementById("contraseña"));
+        } else{ 
+        ///////////////////////////////////////////////////////
+        //Si el texto no pudo ser desencriptado sin el ingreso de una contraseña, 
+        //entonces se solicita el ingreso de una contraseña, con las condiciones necesarias 
+        //para que pueda ser desencriptado ingresando una contraseña
+        /////////////////////////////////////////////////////////////
+        var password = contraseña.value;
+        // Convertimos el texto cifrado de base64 a una cadena de bytes
+        var textoBytes = CryptoJS.enc.Base64.parse(textoCifrado);
+        // Extraemos la sal del texto cifrado (los primeros 16 bytes)
+        var sal = CryptoJS.lib.WordArray.create(textoBytes.words.slice(0, tamañoSal/4));
+        // Extraemos el IV del texto cifrado (los siguientes 16 bytes)
+        var iv = CryptoJS.lib.WordArray.create(textoBytes.words.slice(tamañoSal/4, tamañoSal/2));
+        // Extraemos el texto cifrado propiamente dicho (el resto de bytes)
+        var textoCifradoBytes = CryptoJS.lib.WordArray.create(textoBytes.words.slice(tamañoSal/2));
+        // Generamos una clave a partir de la contraseña y la sal usando PBKDF2
+        var clave = CryptoJS.PBKDF2(password, sal, {keySize: tamañoClave/4});
+        // Desencriptamos el texto usando la clave, el IV y el algoritmo AES-256-CBC
+        var textoPlano = CryptoJS.AES.decrypt({ciphertext: textoCifradoBytes}, clave, {iv: iv});
+        // Convertimos el texto plano a una cadena UTF-8
+        var resultadoPlano = textoPlano.toString(CryptoJS.enc.Utf8);
+        // Mostramos el resultado en el otro input
+        resultado.value = resultadoPlano;
+
+        if((contraseña.value=="") && (resultado.value=="")){alert("Por favor ingrese una contraseña para desencriptar el texto")}
+        
+        if((contraseña.value!="") && (resultado.value=="")){alert("Contraseña incorrecta. Verifique si el mensaje no ha sido alterado")}
+        
+        if(resultado.value!=""){
+            limpiar(document.getElementById("texto"));
+            limpiar(document.getElementById("contraseña"));
+        }  
+        }
+        }
+        }
+        ////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////
+        // Función que copia el texto de un elemento al portapapeles
+        function copiar(elemento) { 
+        // Selecciona el texto del elemento
+        elemento.select();
+        // Copia el texto al portapapeles
+        document.execCommand("copy");
+        if(elemento.value==""){alert("El texto está vacío. Ingrese un texto para procesarlo")}else{
+        alert("Texto copiado al portapapeles");}
+        }
+        // Función que limpia el texto de un elemento
+        function limpiar(elemento) {
+            // Borro el texto del elemento
+            elemento.value = "";
+        }
+        // Función que limpia el portapapeles
+        function limpiarPortapapeles() {
+            // Limpio el portapapeles
+            navigator.clipboard.writeText("");
+        }
+    </script>
+</body>
+</html>
