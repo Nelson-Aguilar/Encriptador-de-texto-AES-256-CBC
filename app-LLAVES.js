@@ -29,7 +29,7 @@ function desencriptar(texto) {
 function procesarTexto(texto, opcion) {
     if (opcion === 'desencriptarTexto') {
         SelectorColumnaLLaves = SelectorColumnaLLaves.reverse();
-        llaves.reverse();
+        llaves = llaves.reverse();
     }
     for (let i = 0; i < llaves.length; i++) {
         texto = texto.replaceAll(llaves[i][SelectorColumnaLLaves[0]], llaves[i][SelectorColumnaLLaves[1]]);
